@@ -98,13 +98,13 @@
         out.style.display = 'none';
         btnCopy.style.display = 'none';
 
-        // ALTERAÇÃO PARA O ENDEREÇO ESTÁVEL (V1)
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
+        // CORREÇÃO: Usando a versão v1beta que suporta o modelo 1.5-flash corretamente
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
 
         const corpoRequest = {
             contents: [{
                 parts: [{
-                    text: `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS), em terceira pessoa, usando linguagem técnica policial. Baseie-se nestes relatos:\n${textoBase}`
+                    text: `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS), em terceira pessoa, usando linguagem técnica policial. Seja direto, evite floreios e use termos como 'defronte', 'logradouro', 'qualificado'. Baseie-se nestes relatos:\n${textoBase}`
                 }]
             }]
         };
@@ -119,8 +119,12 @@
             const data = await response.json();
 
             if (data.error) {
-                // Se der erro de "Model not found", tentamos o modelo alternativo pro
-                throw new Error(data.error.message);
+                // Erro detalhado para o usuário
+                throw new Error(data.error.message || "Erro desconhecido na API.");
+            }
+
+            if (!data.candidates || data.candidates.length === 0) {
+                throw new Error("A IA não conseguiu gerar uma resposta. Verifique o conteúdo inserido.");
             }
 
             const textoGerado = data.candidates[0].content.parts[0].text;
@@ -130,8 +134,8 @@
             out.scrollIntoView({behavior: "smooth"});
 
         } catch (err) { 
-            console.error(err);
-            alert("ERRO: " + err.message);
+            console.error("Erro na Requisição:", err);
+            alert("ERRO: " + err.message + "\n\nVerifique se sua chave API está correta e se possui créditos/acesso.");
         } finally {
             loader.style.display = 'none';
         }
@@ -155,28 +159,47 @@
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return alert("Sem suporte a voz");
+        if (!Speech) return alert("Seu navegador não suporta reconhecimento de voz.");
+        
         const rec = new Speech();
         rec.lang = 'pt-BR';
         rec.onstart = () => btn.classList.add('recording');
         rec.onend = () => btn.classList.remove('recording');
-        rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        rec.onresult = (e) => {
+            campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        };
         rec.start();
     }
 
     function copiarTexto() {
-        navigator.clipboard.writeText(document.getElementById('output').innerText).then(() => alert("Copiado!"));
+        const txt = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(txt).then(() => {
+            alert("Copiado com sucesso! Agora basta colar no REDS.");
+        });
     }
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        if (!content) return alert("Gere o histórico!");
-        const element = `<div style="padding:40px; font-family:serif;">
-            <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
-            <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
-            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
-        </div>`;
-        html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
+        if (!content) return alert("Gere o histórico antes de exportar!");
+        const element = `
+            <div style="padding:40px; font-family:serif;">
+                <center>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png" width="60">
+                    <br>
+                    <strong style="font-size: 14px;">POLÍCIA MILITAR DE MINAS GERAIS</strong><br>
+                    <small>15ª CIA PM IND - AIMORÉS</small>
+                </center>
+                <hr>
+                <h3 style="text-align:center;">HISTÓRICO DE OCORRÊNCIA</h3>
+                <div style="text-align:justify; margin-top:20px; line-height: 1.6;">${content.replace(/\n/g, '<br>')}</div>
+            </div>`;
+        html2pdf().set({ 
+            margin: 10, 
+            filename: 'REDS_Historico.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(element).save();
     }
 </script>
 
