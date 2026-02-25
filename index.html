@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HistPol 15ª Cia - PMMG</title>
     
+    <!-- Ícone para a tela inicial do celular -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
-    </script>
     
     <style>
-        :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; }
+        :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; --light: #f8f9fa; }
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
@@ -23,29 +20,29 @@
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
 
-        .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center; }
+        .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 15px; }
+        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center; font-size: 0.9rem; }
 
         .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         
-        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
+        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Botão de Microfone com Feedback de Status */
-        .btn-mic { width: 100%; background: #007bff; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; }
-        .status-mic { font-size: 0.7rem; display: block; margin-top: 4px; color: #fff; font-weight: normal; opacity: 0.9; }
-        .recording { background: var(--danger) !important; animation: pulse 1.5s infinite; }
+        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; cursor: pointer; }
         
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; }
+        .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
+        textarea { width: 100%; height: 90px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; resize: none; }
         
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
+        .btn-copy { background: #6c757d; font-size: 0.9rem; display: none; }
         
-        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; border-radius: 4px; }
+        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; color: #333; border-radius: 4px; border: 1px solid #ddd; }
         .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 10px; }
     </style>
 </head>
@@ -75,26 +72,24 @@
     </div>
 
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA está redigindo...</div>
+    
+    <div class="loader" id="loader">⏳ IA Redigindo Histórico... Aguarde.</div>
     <div id="output"></div>
 
     <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
+    <button id="btnCopy" onclick="copiarTexto()" class="btn-main btn-copy">📋 COPIAR TEXTO PARA O REDS</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
-<<script type="module">
-    // Importando a biblioteca de forma mais estável para celular
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+<!-- Scripts da Inteligência Artificial -->
+<script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@0.11.0";
 
     const apiInput = document.getElementById('apiKey');
-    
-    // Carrega a chave salva
     apiInput.value = localStorage.getItem('histpol_key') || '';
     
-    // Salva a chave ao digitar e limpa espaços
     apiInput.oninput = () => {
-        const key = apiInput.value.trim();
-        localStorage.setItem('histpol_key', key);
+        localStorage.setItem('histpol_key', apiInput.value.trim());
     };
 
     window.gerarIA = async function() {
@@ -102,44 +97,32 @@
         const relatos = document.querySelectorAll('.relato-texto');
         const out = document.getElementById('output');
         const loader = document.getElementById('loader');
+        const btnCopy = document.getElementById('btnCopy');
 
-        if (!key) {
-            alert("ERRO: Cole sua chave API do Google Gemini primeiro!");
-            return;
-        }
+        if (!key) return alert("Insira a Chave API no campo superior!");
         
         let textoBase = "";
         relatos.forEach(r => { 
             if(r.value.trim()) {
-                textoBase += `[PAPEL: ${r.getAttribute('data-tipo')}] - DEPOIMENTO: ${r.value}\n`;
+                textoBase += `[ENVOLVIDO: ${r.getAttribute('data-tipo')}] - DEPOIMENTO: ${r.value}\n`; 
             }
         });
 
-        if(!textoBase) {
-            alert("ERRO: Adicione pelo menos um relato antes de sintetizar.");
-            return;
-        }
+        if(!textoBase) return alert("Adicione relatos antes de sintetizar.");
 
         loader.style.display = 'block';
         out.style.display = 'none';
-        out.innerText = "";
+        btnCopy.style.display = 'none';
 
         try {
             const genAI = new GoogleGenerativeAI(key);
-            // Usando o modelo Flash que é o mais rápido e gratuito
+            // Uso do modelo estável sem v1beta para evitar erro 404
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             
-            const prompt = `Aja como um Policial Militar experiente de Minas Gerais. 
-            Sua tarefa é redigir um Histórico de Ocorrência (REDS) formal e técnico.
-            
-            DIRETRIZES:
-            1. Use a 3ª pessoa do singular.
-            2. Use termos como: "esta guarnição", "venerando", "defronte", "durante patrulhamento", "procedeu-se abordagem".
-            3. Narre os fatos de forma cronológica.
-            4. Se houver crime, mencione que os direitos do autor foram preservados.
-            5. Seja direto e imparcial.
-            
-            DADOS COLETADOS NO LOCAL:
+            const prompt = `Aja como um Policial Militar de Minas Gerais. 
+            Escreva um Histórico de Ocorrência (REDS) oficial, em 3ª pessoa, com linguagem técnica.
+            Use termos como: "esta guarnição", "venerando", "defronte", "procedeu-se a abordagem", "autor evadiu".
+            Organize os fatos cronologicamente baseado nestes relatos coletados:
             ${textoBase}`;
             
             const result = await model.generateContent(prompt);
@@ -148,27 +131,19 @@
             
             out.innerText = text;
             out.style.display = 'block';
-            document.getElementById('btnCopy').style.display = 'block';
+            btnCopy.style.display = 'block';
             out.scrollIntoView({behavior: "smooth"});
-
         } catch (err) { 
             console.error(err);
-            // Mensagens de erro amigáveis
-            if (err.message.includes("API_KEY_INVALID")) {
-                alert("ERRO: Sua chave API é inválida. Copie novamente do Google AI Studio.");
-            } else if (err.message.includes("429")) {
-                alert("ERRO: Limite de uso gratuito atingido. Aguarde um minuto e tente de novo.");
-            } else {
-                alert("ERRO NA IA: " + err.message);
-            }
+            alert("ERRO NA IA: Chave inválida ou problema na conexão. Verifique o Google AI Studio.");
         } finally {
             loader.style.display = 'none';
         }
     };
 </script>
 
+<!-- Scripts Gerais do App -->
 <script>
-    // Gerenciamento de Cards
     function novoCard(tipo) {
         const id = Date.now();
         const div = document.createElement('div');
@@ -184,36 +159,43 @@
         div.scrollIntoView({behavior: "smooth"});
     }
 
-    // Função de Voz
     function ouvir(id) {
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
-        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
-        if (!Speech) return alert("Navegador incompatível.");
+        if (!SpeechRecognition) return alert("Navegador incompatível com voz.");
 
-        const rec = new Speech();
-        rec.lang = 'pt-BR';
-        rec.onstart = () => btn.classList.add('recording');
-        rec.onend = () => btn.classList.remove('recording');
-        rec.onresult = (e) => {
-            campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        
+        recognition.onstart = () => btn.classList.add('recording');
+        recognition.onend = () => btn.classList.remove('recording');
+        
+        recognition.onresult = (event) => {
+            const texto = event.results[0][0].transcript;
+            campo.value += (campo.value ? " " : "") + texto;
         };
-        rec.start();
+
+        try { recognition.start(); } catch(e) { recognition.stop(); }
     }
 
     function copiarTexto() {
         const texto = document.getElementById('output').innerText;
-        navigator.clipboard.writeText(texto).then(() => alert("Copiado para o REDS!"));
+        navigator.clipboard.writeText(texto).then(() => alert("Copiado! Agora cole no campo histórico do REDS."));
     }
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
         if (!content) return alert("Gere o histórico primeiro!");
         const element = `<div style="padding:40px; font-family:serif;">
-            <center><strong>PMMG - 15ª CIA PM IND</strong></center><hr>
-            <div style="text-align:justify; margin-top:20px; line-height:1.5;">${content.replace(/\n/g, '<br>')}</div>
+            <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
+            <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
+            <div style="text-align:justify; margin-top:20px; line-height:1.6; font-size:1.1rem;">${content.replace(/\n/g, '<br>')}</div>
         </div>`;
-        html2pdf().set({ margin: 1, filename: 'Historico_PMMG.pdf' }).from(element).save();
+        html2pdf().set({ margin: 1, filename: 'Historico_REDS.pdf' }).from(element).save();
     }
 </script>
+
+</body>
+</html>
