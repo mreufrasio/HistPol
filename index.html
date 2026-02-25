@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol 15ª Cia - PMMG</title>
+    <title>HistPol 15ª Cia - VERSÃO 3.0</title>
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; }
@@ -13,6 +12,7 @@
         .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
+        .ver { font-size: 0.6rem; color: #999; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
         .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
         #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center; }
@@ -21,21 +21,22 @@
         .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
         .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
-        .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         textarea { width: 100%; height: 90px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
-        .btn-copy { background: #6c757d; font-size: 0.9rem; display: none; }
         #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; }
         .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <header><h1>HISTPOL</h1><div class="sub">15ª CIA PM IND - AIMORÉS/MG</div></header>
-    <div class="api-box"><input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui..."></div>
+    <header>
+        <h1>HISTPOL</h1>
+        <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
+        <div class="ver">Versão 3.0 - Estável</div>
+    </header>
+    <div class="api-box"><input type="password" id="apiKey" placeholder="Cole sua nova chave API aqui..."></div>
     <div class="selector-grid">
         <button class="btn-add" onclick="novoCard('Solicitante')">Solicitante</button>
         <button class="btn-add" onclick="novoCard('Repr. Legal')">Repr. Legal</button>
@@ -52,12 +53,10 @@
     <div class="loader" id="loader">⏳ IA Processando...</div>
     <div id="output"></div>
     <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
-    <button id="btnCopy" onclick="copiarTexto()" class="btn-main btn-copy">📋 COPIAR TEXTO</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
 <script type="module">
-    // USANDO A BIBLIOTECA MAIS ATUALIZADA DO GOOGLE
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
     const apiInput = document.getElementById('apiKey');
@@ -80,18 +79,16 @@
 
         try {
             const genAI = new GoogleGenerativeAI(key);
-            // USANDO O MODELO MAIS MODERNO E RÁPIDO (1.5 FLASH)
+            // IMPORTANTE: Mudança definitiva para o modelo FLASH
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             
-            const prompt = `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência (REDS) formal, em terceira pessoa, usando linguagem técnica policial (ex: esta guarnição, procedeu abordagem, autor evadiu). Baseie-se nestes relatos coletados:\n${textoBase}`;
+            const prompt = "Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal baseado nestes fatos: " + textoBase;
             
             const result = await model.generateContent(prompt);
             const response = await result.response;
             out.innerText = response.text();
             out.style.display = 'block';
-            document.getElementById('btnCopy').style.display = 'block';
         } catch (err) { 
-            console.error(err);
             alert("ERRO: " + err.message);
         } finally {
             loader.style.display = 'none';
@@ -118,18 +115,14 @@
         if (!Speech) return alert("Incompatível");
         const rec = new Speech();
         rec.lang = 'pt-BR';
-        rec.onstart = () => btn.classList.add('recording');
-        rec.onend = () => btn.classList.remove('recording');
+        rec.onstart = () => btn.style.background = "#e63946";
+        rec.onend = () => btn.style.background = "#2a9d8f";
         rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
         rec.start();
     }
-    function copiarTexto() {
-        navigator.clipboard.writeText(document.getElementById('output').innerText);
-        alert("Copiado!");
-    }
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA PM IND</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
+        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
         html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
     }
 </script>
