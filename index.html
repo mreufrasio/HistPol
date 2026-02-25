@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol V6 - PMMG</title>
+    <title>HistPol V7 - PMMG</title>
     
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -15,17 +15,15 @@
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .v6 { color: #1d3557; font-weight: bold; font-size: 0.7rem; background: #e0e0e0; padding: 2px 8px; border-radius: 10px; }
+        .v7 { color: #fff; font-weight: bold; font-size: 0.7rem; background: var(--primary); padding: 2px 10px; border-radius: 10px; }
         
         .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; }
         #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; font-size: 0.9rem; }
 
         .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; cursor: pointer; }
         
-        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
         
         .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
@@ -49,7 +47,7 @@
     <header>
         <h1>HISTPOL</h1>
         <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
-        <span class="v6">CONEXÃO DIRETA V6.0</span>
+        <span class="v7">ESTÁVEL V7.0</span>
     </header>
 
     <div class="api-box">
@@ -70,7 +68,7 @@
     </div>
 
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA está redigindo o histórico...</div>
+    <div class="loader" id="loader">⏳ IA Processando... Aguarde.</div>
     <div id="output"></div>
 
     <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
@@ -79,12 +77,10 @@
 </div>
 
 <script>
-    // Gerenciamento da Chave API
     const apiInput = document.getElementById('apiKey');
     apiInput.value = localStorage.getItem('histpol_key') || '';
     apiInput.oninput = () => localStorage.setItem('histpol_key', apiInput.value.trim());
 
-    // FUNÇÃO PRINCIPAL: CONEXÃO DIRETA COM GOOGLE SEM BIBLIOTECA
     async function gerarIA() {
         const key = apiInput.value.trim();
         const relatos = document.querySelectorAll('.relato-texto');
@@ -92,28 +88,23 @@
         const loader = document.getElementById('loader');
         const btnCopy = document.getElementById('btnCopy');
 
-        if (!key) return alert("Insira a Chave API para continuar!");
+        if (!key) return alert("Insira a Chave API!");
         
         let textoBase = "";
-        relatos.forEach(r => { 
-            if(r.value.trim()) {
-                textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; 
-            }
-        });
-
-        if(!textoBase) return alert("Adicione relatos (voz ou texto) primeiro.");
+        relatos.forEach(r => { if(r.value.trim()) textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; });
+        if(!textoBase) return alert("Adicione relatos primeiro.");
 
         loader.style.display = 'block';
         out.style.display = 'none';
         btnCopy.style.display = 'none';
 
-        // Endpoint direto do Google Gemini
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+        // ALTERAÇÃO PARA O ENDEREÇO ESTÁVEL (V1)
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
 
-        const dadosParaIA = {
+        const corpoRequest = {
             contents: [{
                 parts: [{
-                    text: `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS), em terceira pessoa, usando linguagem técnica policial (ex: esta guarnição, procedeu abordagem, autor evadiu). Baseie-se nestes relatos coletados:\n${textoBase}`
+                    text: `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS), em terceira pessoa, usando linguagem técnica policial. Baseie-se nestes relatos:\n${textoBase}`
                 }]
             }]
         };
@@ -122,12 +113,13 @@
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosParaIA)
+                body: JSON.stringify(corpoRequest)
             });
 
             const data = await response.json();
 
             if (data.error) {
+                // Se der erro de "Model not found", tentamos o modelo alternativo pro
                 throw new Error(data.error.message);
             }
 
@@ -139,13 +131,12 @@
 
         } catch (err) { 
             console.error(err);
-            alert("ERRO NA CONEXÃO: " + err.message);
+            alert("ERRO: " + err.message);
         } finally {
             loader.style.display = 'none';
         }
     }
 
-    // Gerenciamento de Cards
     function novoCard(tipo) {
         const id = Date.now();
         const div = document.createElement('div');
@@ -155,48 +146,37 @@
             <button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
             <strong style="font-size:0.75rem; color:var(--primary);">${tipo.toUpperCase()}</strong>
             <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 GRAVAR RELATO</button>
-            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Fale ou digite o relato do ${tipo}..."></textarea>
+            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}"></textarea>
         `;
         document.getElementById('listaRelatos').appendChild(div);
-        div.scrollIntoView({behavior: "smooth"});
     }
 
-    // Função de Voz
     function ouvir(id) {
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!Speech) return alert("Seu celular não suporta voz no navegador.");
-
-        const recognition = new Speech();
-        recognition.lang = 'pt-BR';
-        
-        recognition.onstart = () => btn.classList.add('recording');
-        recognition.onend = () => btn.classList.remove('recording');
-        
-        recognition.onresult = (event) => {
-            const texto = event.results[0][0].transcript;
-            campo.value += (campo.value ? " " : "") + texto;
-        };
-
-        try { recognition.start(); } catch(e) { recognition.stop(); }
+        if (!Speech) return alert("Sem suporte a voz");
+        const rec = new Speech();
+        rec.lang = 'pt-BR';
+        rec.onstart = () => btn.classList.add('recording');
+        rec.onend = () => btn.classList.remove('recording');
+        rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        rec.start();
     }
 
     function copiarTexto() {
-        const texto = document.getElementById('output').innerText;
-        navigator.clipboard.writeText(texto).then(() => alert("Histórico copiado!"));
+        navigator.clipboard.writeText(document.getElementById('output').innerText).then(() => alert("Copiado!"));
     }
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        if (!content) return alert("Gere o histórico primeiro!");
+        if (!content) return alert("Gere o histórico!");
         const element = `<div style="padding:40px; font-family:serif;">
             <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
             <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
-            <div style="text-align:justify; margin-top:20px; line-height:1.6;">${content.replace(/\n/g, '<br>')}</div>
+            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
         </div>`;
-        html2pdf().set({ margin: 1, filename: 'REDS_15CIA.pdf' }).from(element).save();
+        html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
     }
 </script>
 
