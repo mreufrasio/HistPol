@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol V8 - PMMG</title>
+    <title>HistPol V9 - PMMG</title>
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -13,101 +13,129 @@
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .v8 { color: #fff; font-weight: bold; font-size: 0.7rem; background: #e63946; padding: 2px 10px; border-radius: 10px; }
+        .v9 { color: #fff; font-weight: bold; font-size: 0.7rem; background: #2a9d8f; padding: 2px 10px; border-radius: 10px; }
+        
         .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; }
         #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; }
-        .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+
+        .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+        
         .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
+        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.6rem; }
+        
         .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
         .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
+
+        textarea { width: 100%; height: 90px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
+        
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; margin-top: 10px; font-size: 1rem; text-transform: uppercase; cursor: pointer; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
-        .btn-copy { background: #6c757d; font-size: 0.9rem; margin-top: 10px; display: none; }
-        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; color: #333; }
-        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; }
+        .btn-copy { background: #6c757d; display: none; margin-top: 10px; }
+        
+        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; }
+        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <header>
         <h1>HISTPOL</h1>
         <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
-        <span class="v8">NOVA CONEXÃO V8.0</span>
+        <span class="v9">VERSÃO INTELIGENTE 9.0</span>
     </header>
-    <div class="api-box"><input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui..."></div>
-    <div class="selector-grid" id="gridBotoes">
-        <!-- Botoes aqui -->
+
+    <div class="api-box">
+        <input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui...">
     </div>
+
+    <div class="selector-grid">
+        <button class="btn-add" onclick="novoCard('Solicitante')">Solicitante</button>
+        <button class="btn-add" onclick="novoCard('Repr. Legal')">Repr. Legal</button>
+        <button class="btn-add" onclick="novoCard('Vítima')">Vítima</button>
+        <button class="btn-add" onclick="novoCard('Autor')">Autor</button>
+        <button class="btn-add" onclick="novoCard('Testemunha')">Testemunha</button>
+        <button class="btn-add" onclick="novoCard('Condutor')">Condutor</button>
+        <button class="btn-add" onclick="novoCard('Cond./Vítima')">Cond./Vítima</button>
+        <button class="btn-add" onclick="novoCard('Depositário')">Depositário</button>
+        <button class="btn-add" onclick="novoCard('Enc. Veículo')">Enc. Veículo</button>
+        <button class="btn-add" onclick="novoCard('Defensor')">Defensor</button>
+    </div>
+
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA Processando...</div>
+    <div class="loader" id="loader">⏳ IA está redigindo... (Testando conexões)</div>
     <div id="output"></div>
-    <button onclick="executarSinteseV8()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
+
+    <button onclick="sintetizarV9()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
     <button id="btnCopy" onclick="copiarTexto()" class="btn-main btn-copy">📋 COPIAR PARA O REDS</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
 <script>
-    // Inicialização dos botões
-    const tipos = ['Solicitante', 'Repr. Legal', 'Vítima', 'Autor', 'Testemunha', 'Condutor', 'Cond./Vítima', 'Depositário', 'Enc. Veículo', 'Defensor'];
-    const grid = document.getElementById('gridBotoes');
-    tipos.forEach(t => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-add';
-        btn.innerText = t;
-        btn.onclick = () => novoCard(t);
-        grid.appendChild(btn);
-    });
-
     const apiInput = document.getElementById('apiKey');
-    apiInput.value = localStorage.getItem('histpol_key_v8') || '';
-    apiInput.oninput = () => localStorage.setItem('histpol_key_v8', apiInput.value.trim());
+    apiInput.value = localStorage.getItem('histpol_key_v9') || '';
+    apiInput.oninput = () => localStorage.setItem('histpol_key_v9', apiInput.value.trim());
 
-    // FUNÇÃO RENOMEADA PARA MATAR O CACHE
-    async function executarSinteseV8() {
+    // FUNÇÃO V9 COM TENTATIVAS AUTOMÁTICAS (FALLBACK)
+    async function sintetizarV9() {
         const key = apiInput.value.trim();
         const relatos = document.querySelectorAll('.relato-texto');
         const out = document.getElementById('output');
         const loader = document.getElementById('loader');
-        const btnCopy = document.getElementById('btnCopy');
 
         if (!key) return alert("Insira a Chave API!");
         
         let textoBase = "";
         relatos.forEach(r => { if(r.value.trim()) textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; });
-        if(!textoBase) return alert("Adicione relatos!");
+        if(!textoBase) return alert("Adicione relatos primeiro.");
 
         loader.style.display = 'block';
         out.style.display = 'none';
-        btnCopy.style.display = 'none';
 
-        // URL FORÇADA PARA VERSÃO 1 ESTÁVEL (SEM BETA)
-        const urlIA = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + key;
+        // LISTA DE MODELOS PARA TENTAR (Em ordem de prioridade)
+        const modelosParaTestar = [
+            { ver: "v1beta", mod: "gemini-1.5-flash" },
+            { ver: "v1", mod: "gemini-1.5-flash" },
+            { ver: "v1", mod: "gemini-pro" }
+        ];
 
-        try {
-            const response = await fetch(urlIA, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: "Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal baseado nestes relatos:\n" + textoBase }] }]
-                })
-            });
+        let sucesso = false;
+        let erroFinal = "";
 
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
+        for (const tentativa of modelosParaTestar) {
+            try {
+                const url = `https://generativelanguage.googleapis.com/${tentativa.ver}/models/${tentativa.mod}:generateContent?key=${key}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS) baseado nisto:\n" + textoBase }] }]
+                    })
+                });
 
-            out.innerText = data.candidates[0].content.parts[0].text;
-            out.style.display = 'block';
-            btnCopy.style.display = 'block';
-            out.scrollIntoView({behavior: "smooth"});
-        } catch (err) {
-            alert("ERRO V8: " + err.message);
-        } finally {
-            loader.style.display = 'none';
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    out.innerText = data.candidates[0].content.parts[0].text;
+                    out.style.display = 'block';
+                    document.getElementById('btnCopy').style.display = 'block';
+                    sucesso = true;
+                    break; // Sai do loop se funcionar
+                } else {
+                    erroFinal = data.error ? data.error.message : "Resposta inválida";
+                }
+            } catch (e) {
+                erroFinal = e.message;
+            }
+        }
+
+        loader.style.display = 'none';
+        if (!sucesso) {
+            alert("ERRO EM TODAS AS TENTATIVAS: " + erroFinal + "\n\nVerifique se sua chave API está correta ou se o Google está fora do ar.");
         }
     }
 
@@ -143,9 +171,14 @@
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
+        const element = `<div style="padding:40px; font-family:serif;">
+            <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
+            <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
+            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
+        </div>`;
         html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
     }
 </script>
+
 </body>
 </html>
