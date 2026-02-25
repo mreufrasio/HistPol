@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol V9 - PMMG</title>
+    <title>HistPol V11 - PMMG (Corrigido)</title>
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -13,129 +13,141 @@
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .v9 { color: #fff; font-weight: bold; font-size: 0.7rem; background: #2a9d8f; padding: 2px 10px; border-radius: 10px; }
-        
+        .v11 { color: #fff; font-weight: bold; font-size: 0.7rem; background: var(--success); padding: 2px 10px; border-radius: 10px; }
         .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; }
         #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; }
-
         .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
-        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; cursor: pointer; }
-        
+        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
         .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.6rem; }
-        
-        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
-        .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
+        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; }
         textarea { width: 100%; height: 90px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
-        
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; margin-top: 10px; font-size: 1rem; text-transform: uppercase; cursor: pointer; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
-        .btn-copy { background: #6c757d; display: none; margin-top: 10px; }
-        
         #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; }
-        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; font-size: 0.9rem; }
+        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; }
+        .status-ok { color: var(--success); }
+        .status-error { color: var(--danger); }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <header>
-        <h1>HISTPOL</h1>
-        <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
-        <span class="v9">VERSÃO INTELIGENTE 9.0</span>
-    </header>
-
+    <header><h1>HISTPOL</h1><div class="sub">15ª CIA PM IND - AIMORÉS/MG</div><span class="v11">V11.0 - ERRO GEMINI CORRIGIDO</span></header>
     <div class="api-box">
-        <input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui...">
+        <input type="password" id="apiKey" placeholder="Cole sua chave API Gemini (AI Studio)...">
+        <small style="color:#666; display:block; margin-top:5px;">Pegue grátis: aistudio.google.com/app/apikey</small>
     </div>
-
-    <div class="selector-grid">
-        <button class="btn-add" onclick="novoCard('Solicitante')">Solicitante</button>
-        <button class="btn-add" onclick="novoCard('Repr. Legal')">Repr. Legal</button>
-        <button class="btn-add" onclick="novoCard('Vítima')">Vítima</button>
-        <button class="btn-add" onclick="novoCard('Autor')">Autor</button>
-        <button class="btn-add" onclick="novoCard('Testemunha')">Testemunha</button>
-        <button class="btn-add" onclick="novoCard('Condutor')">Condutor</button>
-        <button class="btn-add" onclick="novoCard('Cond./Vítima')">Cond./Vítima</button>
-        <button class="btn-add" onclick="novoCard('Depositário')">Depositário</button>
-        <button class="btn-add" onclick="novoCard('Enc. Veículo')">Enc. Veículo</button>
-        <button class="btn-add" onclick="novoCard('Defensor')">Defensor</button>
-    </div>
-
+    <div class="selector-grid" id="gridBtns"></div>
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA está redigindo... (Testando conexões)</div>
+    <div class="loader" id="loader">⏳ Gerando histórico policial...</div>
     <div id="output"></div>
-
-    <button onclick="sintetizarV9()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
-    <button id="btnCopy" onclick="copiarTexto()" class="btn-main btn-copy">📋 COPIAR PARA O REDS</button>
+    <button onclick="gerarHistoricoV11()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
 <script>
-    const apiInput = document.getElementById('apiKey');
-    apiInput.value = localStorage.getItem('histpol_key_v9') || '';
-    apiInput.oninput = () => localStorage.setItem('histpol_key_v9', apiInput.value.trim());
+    const tipos = ['Solicitante', 'Repr. Legal', 'Vítima', 'Autor', 'Testemunha', 'Condutor', 'Cond./Vítima', 'Depositário', 'Enc. Veículo', 'Defensor'];
+    const grid = document.getElementById('gridBtns');
+    tipos.forEach(t => {
+        const b = document.createElement('button'); 
+        b.className = 'btn-add'; 
+        b.innerText = t; 
+        b.onclick = () => novoCard(t); 
+        grid.appendChild(b);
+    });
 
-    // FUNÇÃO V9 COM TENTATIVAS AUTOMÁTICAS (FALLBACK)
-    async function sintetizarV9() {
-        const key = apiInput.value.trim();
+    const apiInput = document.getElementById('apiKey');
+    apiInput.value = localStorage.getItem('histpol_key_v11') || '';
+    apiInput.oninput = () => localStorage.setItem('histpol_key_v11', apiInput.value.replace(/s/g, ''));
+
+    async function gerarHistoricoV11() {
+        const key = apiInput.value.replace(/s/g, '').trim();
         const relatos = document.querySelectorAll('.relato-texto');
         const out = document.getElementById('output');
         const loader = document.getElementById('loader');
 
-        if (!key) return alert("Insira a Chave API!");
+        if (!key) return alert("❌ Cole a chave API do Gemini!");
         
         let textoBase = "";
-        relatos.forEach(r => { if(r.value.trim()) textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; });
-        if(!textoBase) return alert("Adicione relatos primeiro.");
+        let countValidos = 0;
+        relatos.forEach(r => { 
+            const texto = r.value.trim();
+            if(texto) { 
+                textoBase += `[${r.getAttribute('data-tipo')}]: ${texto}
+`; 
+                countValidos++;
+            }
+        });
+        
+        if(countValidos === 0) return alert("❌ Adicione pelo menos 1 relato!");
+        if(countValidos === 1) textoBase += "
+[Observação]: Relato único coletado.";
 
         loader.style.display = 'block';
         out.style.display = 'none';
 
-        // LISTA DE MODELOS PARA TENTAR (Em ordem de prioridade)
-        const modelosParaTestar = [
-            { ver: "v1beta", mod: "gemini-1.5-flash" },
-            { ver: "v1", mod: "gemini-1.5-flash" },
-            { ver: "v1", mod: "gemini-pro" }
-        ];
+        const promptMelhorado = `Você é um Policial Militar experiente da PMMG - 15ª CIA PM Ind. Redija um HISTÓRICO POLICIAL FORMAL e completo de ocorrência policial, no padrão oficial brasileiro, baseado APENAS nestes relatos coletados:
 
-        let sucesso = false;
-        let erroFinal = "";
+${textoBase}
 
-        for (const tentativa of modelosParaTestar) {
-            try {
-                const url = `https://generativelanguage.googleapis.com/${tentativa.ver}/models/${tentativa.mod}:generateContent?key=${key}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS) baseado nisto:\n" + textoBase }] }]
-                    })
-                });
+✅ Estrutura OBRIGATÓRIA:
+1. CABEÇALHO: "HISTÓRICO POLICIAL" + data/hora atual
+2. IDENTIFICAÇÃO: Liste envolvidos pelos tipos indicados (nome/qualificação se mencionado)
+3. RELATO CRONOLÓGICO: Fatos em ordem temporal, linguagem objetiva
+4. CONSIDERAÇÕES: Análise breve dos fatos
+5. LOCAL/DATA: Aimorés/MG + data
 
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    out.innerText = data.candidates[0].content.parts[0].text;
-                    out.style.display = 'block';
-                    document.getElementById('btnCopy').style.display = 'block';
-                    sucesso = true;
-                    break; // Sai do loop se funcionar
-                } else {
-                    erroFinal = data.error ? data.error.message : "Resposta inválida";
-                }
-            } catch (e) {
-                erroFinal = e.message;
+✅ REGRAS:
+- Linguagem FORMAL, técnica e policial
+- NÃO INVENTE nomes, fatos ou dados
+- Se info faltar: "não informado" ou "não consta"
+- Mantenha neutro e factual
+- Saída limpa, sem explicações extras
+
+FORMATO: Texto corrido, paragrafado.`;
+
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptMelhorado }] }],
+                    generationConfig: {
+                        temperature: 0.1,
+                        topK: 10,
+                        topP: 0.8,
+                        maxOutputTokens: 3000
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Código ${response.status}: ${errorData.error?.message || 'Erro desconhecido'}`);
             }
-        }
 
-        loader.style.display = 'none';
-        if (!sucesso) {
-            alert("ERRO EM TODAS AS TENTATIVAS: " + erroFinal + "\n\nVerifique se sua chave API está correta ou se o Google está fora do ar.");
+            const data = await response.json();
+            
+            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                out.innerHTML = `<div class="status-ok">✅ Histórico gerado com ${countValidos} relatos!</div>` + 
+                                data.candidates[0].content.parts[0].text.replace(/
+/g, '<br>');
+                out.style.display = 'block';
+            } else {
+                throw new Error('Resposta inválida do Gemini');
+            }
+        } catch (e) {
+            alert(`❌ ERRO: ${e.message}
+
+💡 Dicas:
+• Chave API válida? (AI Studio)
+• Limite de uso excedido?
+• Teste internet`);
+        } finally {
+            loader.style.display = 'none';
         }
     }
 
@@ -147,7 +159,7 @@
         div.innerHTML = `<button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
             <strong style="font-size:0.75rem; color:var(--primary);">${tipo.toUpperCase()}</strong>
             <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 GRAVAR RELATO</button>
-            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}"></textarea>`;
+            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Fale ou digite o relato..."></textarea>`;
         document.getElementById('listaRelatos').appendChild(div);
     }
 
@@ -155,30 +167,46 @@
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return alert("Sem suporte a voz");
-        const rec = new Speech();
-        rec.lang = 'pt-BR';
-        rec.onstart = () => btn.classList.add('recording');
-        rec.onend = () => btn.classList.remove('recording');
-        rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        if (!Speech) return alert("❌ Seu navegador não suporta microfone");
+        
+        const rec = new Speech(); 
+        rec.lang = 'pt-BR'; 
+        rec.continuous = true;
+        rec.interimResults = false;
+        
+        rec.onstart = () => { btn.innerText = '⏹ PARAR'; btn.style.background = "#e63946"; };
+        rec.onend = () => { btn.innerText = '🎤 GRAVAR RELATO'; btn.style.background = "#2a9d8f"; };
+        rec.onerror = () => { btn.innerText = '🎤 GRAVAR RELATO'; btn.style.background = "#2a9d8f"; };
+        rec.onresult = (e) => {
+            const transcript = e.results[e.results.length - 1][0].transcript;
+            campo.value = campo.value.trim() ? campo.value + ' ' + transcript : transcript;
+        };
         rec.start();
-    }
-
-    function copiarTexto() {
-        navigator.clipboard.writeText(document.getElementById('output').innerText);
-        alert("Copiado!");
     }
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        const element = `<div style="padding:40px; font-family:serif;">
-            <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
-            <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
-            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
-        </div>`;
-        html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
+        if (!content) return alert('❌ Gere o histórico primeiro!');
+        
+        const element = `
+            <div style="padding:40px; font-family:serif; max-width:600px; margin:auto;">
+                <h2 style="text-align:center; color:#1d3557;">POLÍCIA MILITAR DE MINAS GERAIS</h2>
+                <h3 style="text-align:center; color:#b8973d;">15ª CIA PM IND - AIMORÉS/MG</h3>
+                <hr style="border:2px solid #1d3557;">
+                <div style="text-align:justify; line-height:1.6; font-size:14px;">${content.replace(/
+/g, '<br><br>')}</div>
+                <hr style="border:1px solid #ccc; margin-top:40px;">
+                <p style="text-align:center; font-size:12px; color:#666;">
+                    Gerado via HistPol V11 - ${new Date().toLocaleString('pt-BR')}
+                </p>
+            </div>`;
+        
+        html2pdf().set({ 
+            margin: 1, 
+            filename: `Historico_PMMG_${Date.now()}.pdf`,
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(element).save();
     }
 </script>
-
 </body>
 </html>
