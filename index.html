@@ -57,7 +57,8 @@
 </div>
 
 <script type="module">
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@0.1.0";
+    // USANDO A BIBLIOTECA MAIS ATUALIZADA DO GOOGLE
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
     const apiInput = document.getElementById('apiKey');
     apiInput.value = localStorage.getItem('histpol_key') || '';
@@ -79,18 +80,19 @@
 
         try {
             const genAI = new GoogleGenerativeAI(key);
-            // Mudança para o modelo estável
-            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            // USANDO O MODELO MAIS MODERNO E RÁPIDO (1.5 FLASH)
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             
-            const result = await model.generateContent("Aja como um Policial Militar e redija um histórico REDS formal para: " + textoBase);
+            const prompt = `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência (REDS) formal, em terceira pessoa, usando linguagem técnica policial (ex: esta guarnição, procedeu abordagem, autor evadiu). Baseie-se nestes relatos coletados:\n${textoBase}`;
+            
+            const result = await model.generateContent(prompt);
             const response = await result.response;
             out.innerText = response.text();
             out.style.display = 'block';
             document.getElementById('btnCopy').style.display = 'block';
         } catch (err) { 
             console.error(err);
-            // MOSTRAR O ERRO REAL PARA DIAGNÓSTICO
-            alert("ERRO DETALHADO: " + err.message);
+            alert("ERRO: " + err.message);
         } finally {
             loader.style.display = 'none';
         }
@@ -127,7 +129,7 @@
     }
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
+        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA PM IND</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
         html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
     }
 </script>
