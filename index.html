@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HistPol 15ª Cia - PMMG</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+    
+    <style>
+        :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
+        h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
+        .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
+
+        .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center; }
+
+        .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        
+        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
+        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
+        
+        /* Botão de Microfone com Feedback de Status */
+        .btn-mic { width: 100%; background: #007bff; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; }
+        .status-mic { font-size: 0.7rem; display: block; margin-top: 4px; color: #fff; font-weight: normal; opacity: 0.9; }
+        .recording { background: var(--danger) !important; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
+        
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
+        .btn-ai { background: var(--gold); }
+        .btn-pdf { background: var(--primary); }
+        
+        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; border-radius: 4px; }
+        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>HISTPOL</h1>
+        <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
+    </header>
+
+    <div class="api-box">
+        <input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui...">
+    </div>
+
+    <div class="selector-grid">
+        <button class="btn-add" onclick="novoCard('Solicitante')">Solicitante</button>
+        <button class="btn-add" onclick="novoCard('Repr. Legal')">Repr. Legal</button>
+        <button class="btn-add" onclick="novoCard('Vítima')">Vítima</button>
+        <button class="btn-add" onclick="novoCard('Autor')">Autor</button>
+        <button class="btn-add" onclick="novoCard('Testemunha')">Testemunha</button>
+        <button class="btn-add" onclick="novoCard('Condutor')">Condutor</button>
+        <button class="btn-add" onclick="novoCard('Cond./Vítima')">Cond./Vítima</button>
+        <button class="btn-add" onclick="novoCard('Depositário')">Depositário</button>
+        <button class="btn-add" onclick="novoCard('Enc. Veículo')">Enc. Veículo</button>
+        <button class="btn-add" onclick="novoCard('Defensor')">Defensor</button>
+    </div>
+
+    <div id="listaRelatos"></div>
+    <div class="loader" id="loader">⏳ IA está redigindo...</div>
+    <div id="output"></div>
+
+    <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
+    <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
+</div>
+
+<<script type="module">
+    // Importando a biblioteca de forma mais estável para celular
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    const apiInput = document.getElementById('apiKey');
+    
+    // Carrega a chave salva
+    apiInput.value = localStorage.getItem('histpol_key') || '';
+    
+    // Salva a chave ao digitar e limpa espaços
+    apiInput.oninput = () => {
+        const key = apiInput.value.trim();
+        localStorage.setItem('histpol_key', key);
+    };
+
+    window.gerarIA = async function() {
+        const key = apiInput.value.trim();
+        const relatos = document.querySelectorAll('.relato-texto');
+        const out = document.getElementById('output');
+        const loader = document.getElementById('loader');
+
+        if (!key) {
+            alert("ERRO: Cole sua chave API do Google Gemini primeiro!");
+            return;
+        }
+        
+        let textoBase = "";
+        relatos.forEach(r => { 
+            if(r.value.trim()) {
+                textoBase += `[PAPEL: ${r.getAttribute('data-tipo')}] - DEPOIMENTO: ${r.value}\n`;
+            }
+        });
+
+        if(!textoBase) {
+            alert("ERRO: Adicione pelo menos um relato antes de sintetizar.");
+            return;
+        }
+
+        loader.style.display = 'block';
+        out.style.display = 'none';
+        out.innerText = "";
+
+        try {
+            const genAI = new GoogleGenerativeAI(key);
+            // Usando o modelo Flash que é o mais rápido e gratuito
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            
+            const prompt = `Aja como um Policial Militar experiente de Minas Gerais. 
+            Sua tarefa é redigir um Histórico de Ocorrência (REDS) formal e técnico.
+            
+            DIRETRIZES:
+            1. Use a 3ª pessoa do singular.
+            2. Use termos como: "esta guarnição", "venerando", "defronte", "durante patrulhamento", "procedeu-se abordagem".
+            3. Narre os fatos de forma cronológica.
+            4. Se houver crime, mencione que os direitos do autor foram preservados.
+            5. Seja direto e imparcial.
+            
+            DADOS COLETADOS NO LOCAL:
+            ${textoBase}`;
+            
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            
+            out.innerText = text;
+            out.style.display = 'block';
+            document.getElementById('btnCopy').style.display = 'block';
+            out.scrollIntoView({behavior: "smooth"});
+
+        } catch (err) { 
+            console.error(err);
+            // Mensagens de erro amigáveis
+            if (err.message.includes("API_KEY_INVALID")) {
+                alert("ERRO: Sua chave API é inválida. Copie novamente do Google AI Studio.");
+            } else if (err.message.includes("429")) {
+                alert("ERRO: Limite de uso gratuito atingido. Aguarde um minuto e tente de novo.");
+            } else {
+                alert("ERRO NA IA: " + err.message);
+            }
+        } finally {
+            loader.style.display = 'none';
+        }
+    };
+</script>
+
+<script>
+    // Gerenciamento de Cards
+    function novoCard(tipo) {
+        const id = Date.now();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.id = 'card-' + id;
+        div.innerHTML = `
+            <button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
+            <strong style="font-size:0.75rem; color:var(--primary);">${tipo.toUpperCase()}</strong>
+            <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 CLIQUE PARA FALAR</button>
+            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Relato do ${tipo}..."></textarea>
+        `;
+        document.getElementById('listaRelatos').appendChild(div);
+        div.scrollIntoView({behavior: "smooth"});
+    }
+
+    // Função de Voz
+    function ouvir(id) {
+        const btn = document.getElementById('mic-' + id);
+        const campo = document.getElementById('txt-' + id);
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!Speech) return alert("Navegador incompatível.");
+
+        const rec = new Speech();
+        rec.lang = 'pt-BR';
+        rec.onstart = () => btn.classList.add('recording');
+        rec.onend = () => btn.classList.remove('recording');
+        rec.onresult = (e) => {
+            campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
+        };
+        rec.start();
+    }
+
+    function copiarTexto() {
+        const texto = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(texto).then(() => alert("Copiado para o REDS!"));
+    }
+
+    function exportarPDF() {
+        const content = document.getElementById('output').innerText;
+        if (!content) return alert("Gere o histórico primeiro!");
+        const element = `<div style="padding:40px; font-family:serif;">
+            <center><strong>PMMG - 15ª CIA PM IND</strong></center><hr>
+            <div style="text-align:justify; margin-top:20px; line-height:1.5;">${content.replace(/\n/g, '<br>')}</div>
+        </div>`;
+        html2pdf().set({ margin: 1, filename: 'Historico_PMMG.pdf' }).from(element).save();
+    }
+</script>
