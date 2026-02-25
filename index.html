@@ -3,40 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol 15ª Cia - VERSÃO 3.0</title>
+    <title>HistPol V5 - PMMG</title>
+    
+    <!-- Ícone PMMG -->
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
+    
+    <!-- Bibliotecas Externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Nova forma de carregar a IA para evitar erro 404 -->
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.1.0/dist/index.min.js"></script>
+
     <style>
         :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; }
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
-        .ver { font-size: 0.6rem; color: #999; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
+        .v5 { color: #2a9d8f; font-weight: bold; font-size: 0.7rem; border: 1px solid #2a9d8f; padding: 2px 5px; border-radius: 4px; }
         .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center; }
+        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; }
         .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
-        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
-        textarea { width: 100%; height: 90px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
+        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; }
+        .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        textarea { width: 100%; height: 95px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
-        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; }
-        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 10px; }
+        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; }
+        .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <header>
         <h1>HISTPOL</h1>
         <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
-        <div class="ver">Versão 3.0 - Estável</div>
+        <span class="v5">VERSÃO FINAL 5.0</span>
     </header>
-    <div class="api-box"><input type="password" id="apiKey" placeholder="Cole sua nova chave API aqui..."></div>
+
+    <div class="api-box">
+        <input type="password" id="apiKey" placeholder="Cole sua chave Gemini API aqui...">
+    </div>
+
     <div class="selector-grid">
         <button class="btn-add" onclick="novoCard('Solicitante')">Solicitante</button>
         <button class="btn-add" onclick="novoCard('Repr. Legal')">Repr. Legal</button>
@@ -49,82 +63,96 @@
         <button class="btn-add" onclick="novoCard('Enc. Veículo')">Enc. Veículo</button>
         <button class="btn-add" onclick="novoCard('Defensor')">Defensor</button>
     </div>
+
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA Processando...</div>
+    <div class="loader" id="loader">⏳ IA Redigindo... Aguarde.</div>
     <div id="output"></div>
+
     <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
-<script type="module">
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-
+<script>
+    // Gerenciamento da Chave
     const apiInput = document.getElementById('apiKey');
     apiInput.value = localStorage.getItem('histpol_key') || '';
     apiInput.oninput = () => localStorage.setItem('histpol_key', apiInput.value.trim());
 
-    window.gerarIA = async function() {
+    // Função de IA usando a biblioteca estável (Window)
+    async function gerarIA() {
         const key = apiInput.value.trim();
         const relatos = document.querySelectorAll('.relato-texto');
         const out = document.getElementById('output');
         const loader = document.getElementById('loader');
 
         if (!key) return alert("Insira a Chave API!");
+        
         let textoBase = "";
         relatos.forEach(r => { if(r.value.trim()) textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; });
-        if(!textoBase) return alert("Adicione relatos!");
+        if(!textoBase) return alert("Adicione relatos primeiro.");
 
         loader.style.display = 'block';
         out.style.display = 'none';
 
         try {
-            const genAI = new GoogleGenerativeAI(key);
-            // IMPORTANTE: Mudança definitiva para o modelo FLASH
+            // Usando a biblioteca via window (mais estável para navegador antigo)
+            const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(key);
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             
-            const prompt = "Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal baseado nestes fatos: " + textoBase;
+            const prompt = "Aja como um Policial Militar. Redija um histórico de ocorrência formal para: " + textoBase;
             
             const result = await model.generateContent(prompt);
             const response = await result.response;
             out.innerText = response.text();
             out.style.display = 'block';
+            out.scrollIntoView({behavior: "smooth"});
         } catch (err) { 
+            console.error(err);
             alert("ERRO: " + err.message);
         } finally {
             loader.style.display = 'none';
         }
-    };
-</script>
+    }
 
-<script>
+    // Gerenciamento de Cards
     function novoCard(tipo) {
         const id = Date.now();
         const div = document.createElement('div');
         div.className = 'card';
         div.id = 'card-' + id;
-        div.innerHTML = `<button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
+        div.innerHTML = `
+            <button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
             <strong style="font-size:0.75rem; color:var(--primary);">${tipo.toUpperCase()}</strong>
             <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 GRAVAR</button>
-            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}"></textarea>`;
+            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Relato..."></textarea>
+        `;
         document.getElementById('listaRelatos').appendChild(div);
     }
+
+    // Função de Voz
     function ouvir(id) {
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return alert("Incompatível");
+        if (!Speech) return alert("Não suportado");
         const rec = new Speech();
         rec.lang = 'pt-BR';
-        rec.onstart = () => btn.style.background = "#e63946";
-        rec.onend = () => btn.style.background = "#2a9d8f";
+        rec.onstart = () => btn.classList.add('recording');
+        rec.onend = () => btn.classList.remove('recording');
         rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
         rec.start();
     }
+
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        const element = `<div style="padding:40px;"><h2>PMMG - 15ª CIA</h2><hr>${content.replace(/\n/g, '<br>')}</div>`;
+        if (!content) return alert("Gere o histórico!");
+        const element = `<div style="padding:40px; font-family:serif;">
+            <center><strong>PMMG - 15ª CIA PM IND</strong></center><hr>
+            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
+        </div>`;
         html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
     }
 </script>
+
 </body>
 </html>
