@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HistPol V5 - PMMG</title>
+    <title>HistPol V6 - PMMG</title>
     
-    <!-- Ícone PMMG -->
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/150px-Braz%C3%A3o_PMMG.png">
-    
-    <!-- Bibliotecas Externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Nova forma de carregar a IA para evitar erro 404 -->
-    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.1.0/dist/index.min.js"></script>
 
     <style>
         :root { --primary: #1d3557; --secondary: #457b9d; --gold: #b8973d; --danger: #e63946; --success: #2a9d8f; }
@@ -20,21 +15,31 @@
         header { text-align: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
         h1 { margin: 0; font-size: 1.4rem; color: var(--primary); font-weight: bold; }
         .sub { color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .v5 { color: #2a9d8f; font-weight: bold; font-size: 0.7rem; border: 1px solid #2a9d8f; padding: 2px 5px; border-radius: 4px; }
-        .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; }
+        .v6 { color: #1d3557; font-weight: bold; font-size: 0.7rem; background: #e0e0e0; padding: 2px 8px; border-radius: 10px; }
+        
+        .api-box { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; }
+        #apiKey { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; text-align: center; font-size: 0.9rem; }
+
         .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .btn-add { background: var(--secondary); color: white; border: none; border-radius: 6px; padding: 12px 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
+        
+        .card { background: #f8f9fa; border-left: 5px solid var(--primary); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; }
-        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; }
+        
+        .btn-mic { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
         .recording { background: var(--danger) !important; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        textarea { width: 100%; height: 95px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; margin-top: 10px; font-size: 1rem; text-transform: uppercase; }
+
+        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; font-size: 1rem; resize: none; }
+        
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; color: white; margin-top: 10px; font-size: 1rem; text-transform: uppercase; cursor: pointer; }
         .btn-ai { background: var(--gold); }
         .btn-pdf { background: var(--primary); }
-        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; }
+        .btn-copy { background: #6c757d; font-size: 0.9rem; margin-top: 10px; display: none; }
+        
+        #output { margin-top: 15px; padding: 15px; background: #fffde7; border-left: 5px solid var(--gold); display: none; text-align: justify; white-space: pre-wrap; font-size: 1rem; border-radius: 4px; border: 1px solid #ddd; color: #333; }
         .loader { display: none; color: var(--gold); font-weight: bold; text-align: center; padding: 15px; }
     </style>
 </head>
@@ -44,7 +49,7 @@
     <header>
         <h1>HISTPOL</h1>
         <div class="sub">15ª CIA PM IND - AIMORÉS/MG</div>
-        <span class="v5">VERSÃO FINAL 5.0</span>
+        <span class="v6">CONEXÃO DIRETA V6.0</span>
     </header>
 
     <div class="api-box">
@@ -65,50 +70,76 @@
     </div>
 
     <div id="listaRelatos"></div>
-    <div class="loader" id="loader">⏳ IA Redigindo... Aguarde.</div>
+    <div class="loader" id="loader">⏳ IA está redigindo o histórico...</div>
     <div id="output"></div>
 
     <button onclick="gerarIA()" class="btn-main btn-ai">✨ SINTETIZAR HISTÓRICO</button>
+    <button id="btnCopy" onclick="copiarTexto()" class="btn-main btn-copy">📋 COPIAR PARA O REDS</button>
     <button onclick="exportarPDF()" class="btn-main btn-pdf">📄 GERAR PDF FINAL</button>
 </div>
 
 <script>
-    // Gerenciamento da Chave
+    // Gerenciamento da Chave API
     const apiInput = document.getElementById('apiKey');
     apiInput.value = localStorage.getItem('histpol_key') || '';
     apiInput.oninput = () => localStorage.setItem('histpol_key', apiInput.value.trim());
 
-    // Função de IA usando a biblioteca estável (Window)
+    // FUNÇÃO PRINCIPAL: CONEXÃO DIRETA COM GOOGLE SEM BIBLIOTECA
     async function gerarIA() {
         const key = apiInput.value.trim();
         const relatos = document.querySelectorAll('.relato-texto');
         const out = document.getElementById('output');
         const loader = document.getElementById('loader');
+        const btnCopy = document.getElementById('btnCopy');
 
-        if (!key) return alert("Insira a Chave API!");
+        if (!key) return alert("Insira a Chave API para continuar!");
         
         let textoBase = "";
-        relatos.forEach(r => { if(r.value.trim()) textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; });
-        if(!textoBase) return alert("Adicione relatos primeiro.");
+        relatos.forEach(r => { 
+            if(r.value.trim()) {
+                textoBase += `[${r.getAttribute('data-tipo')}]: ${r.value}\n`; 
+            }
+        });
+
+        if(!textoBase) return alert("Adicione relatos (voz ou texto) primeiro.");
 
         loader.style.display = 'block';
         out.style.display = 'none';
+        btnCopy.style.display = 'none';
+
+        // Endpoint direto do Google Gemini
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+
+        const dadosParaIA = {
+            contents: [{
+                parts: [{
+                    text: `Aja como um Policial Militar de Minas Gerais. Redija um histórico de ocorrência formal (REDS), em terceira pessoa, usando linguagem técnica policial (ex: esta guarnição, procedeu abordagem, autor evadiu). Baseie-se nestes relatos coletados:\n${textoBase}`
+                }]
+            }]
+        };
 
         try {
-            // Usando a biblioteca via window (mais estável para navegador antigo)
-            const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(key);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            
-            const prompt = "Aja como um Policial Militar. Redija um histórico de ocorrência formal para: " + textoBase;
-            
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            out.innerText = response.text();
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosParaIA)
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+
+            const textoGerado = data.candidates[0].content.parts[0].text;
+            out.innerText = textoGerado;
             out.style.display = 'block';
+            btnCopy.style.display = 'block';
             out.scrollIntoView({behavior: "smooth"});
+
         } catch (err) { 
             console.error(err);
-            alert("ERRO: " + err.message);
+            alert("ERRO NA CONEXÃO: " + err.message);
         } finally {
             loader.style.display = 'none';
         }
@@ -123,10 +154,11 @@
         div.innerHTML = `
             <button class="btn-del" onclick="document.getElementById('card-${id}').remove()">X</button>
             <strong style="font-size:0.75rem; color:var(--primary);">${tipo.toUpperCase()}</strong>
-            <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 GRAVAR</button>
-            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Relato..."></textarea>
+            <button class="btn-mic" id="mic-${id}" onclick="ouvir(${id})">🎤 GRAVAR RELATO</button>
+            <textarea id="txt-${id}" class="relato-texto" data-tipo="${tipo}" placeholder="Fale ou digite o relato do ${tipo}..."></textarea>
         `;
         document.getElementById('listaRelatos').appendChild(div);
+        div.scrollIntoView({behavior: "smooth"});
     }
 
     // Função de Voz
@@ -134,23 +166,37 @@
         const btn = document.getElementById('mic-' + id);
         const campo = document.getElementById('txt-' + id);
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return alert("Não suportado");
-        const rec = new Speech();
-        rec.lang = 'pt-BR';
-        rec.onstart = () => btn.classList.add('recording');
-        rec.onend = () => btn.classList.remove('recording');
-        rec.onresult = (e) => campo.value += (campo.value ? " " : "") + e.results[0][0].transcript;
-        rec.start();
+        
+        if (!Speech) return alert("Seu celular não suporta voz no navegador.");
+
+        const recognition = new Speech();
+        recognition.lang = 'pt-BR';
+        
+        recognition.onstart = () => btn.classList.add('recording');
+        recognition.onend = () => btn.classList.remove('recording');
+        
+        recognition.onresult = (event) => {
+            const texto = event.results[0][0].transcript;
+            campo.value += (campo.value ? " " : "") + texto;
+        };
+
+        try { recognition.start(); } catch(e) { recognition.stop(); }
+    }
+
+    function copiarTexto() {
+        const texto = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(texto).then(() => alert("Histórico copiado!"));
     }
 
     function exportarPDF() {
         const content = document.getElementById('output').innerText;
-        if (!content) return alert("Gere o histórico!");
+        if (!content) return alert("Gere o histórico primeiro!");
         const element = `<div style="padding:40px; font-family:serif;">
-            <center><strong>PMMG - 15ª CIA PM IND</strong></center><hr>
-            <div style="text-align:justify; margin-top:20px;">${content.replace(/\n/g, '<br>')}</div>
+            <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Braz%C3%A3o_PMMG.png/80px-Braz%C3%A3o_PMMG.png"><br>
+            <strong>PMMG - 15ª CIA PM IND - AIMORÉS</strong></center><hr>
+            <div style="text-align:justify; margin-top:20px; line-height:1.6;">${content.replace(/\n/g, '<br>')}</div>
         </div>`;
-        html2pdf().set({ margin: 1, filename: 'Historico.pdf' }).from(element).save();
+        html2pdf().set({ margin: 1, filename: 'REDS_15CIA.pdf' }).from(element).save();
     }
 </script>
 
